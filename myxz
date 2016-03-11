@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -x
+
+FILE=$1
+
+die() {
+  echo "$@"
+  exit 1
+}
+
+p() {
+  pv -cN ${1:+"$@"}
+}
+
+unpack() {
+  case $FILE in
+    *.xz)
+      xzdec | p middle
+      ;;
+    *.lzop)
+      lzop -d | p middle
+      ;;
+    *)
+      cat
+      ;;
+  esac
+}
+
+[ -e "$FILE" ] || die "Cannot open input file: $FILE"
+
+p in $FILE|unpack|xz|p out > $FILE.xz

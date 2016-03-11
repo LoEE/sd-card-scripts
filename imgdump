@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -x
+
+sudo -v
+
+DISK=$1
+FILE=$2
+
+p() {
+  pv -cN ${1:+"$@"}
+}
+
+pack() {
+  case $FILE in
+    *.xz)
+      xz | p out
+      ;;
+    *.lzop)
+      lzop | p out
+      ;;
+    *)
+      cat
+      ;;
+  esac
+}
+
+dump() {
+  sudo p in ${1:+"$@"}
+}
+
+dump $DISK|pack > $FILE.lzop
+echo
+echo "You may now safely remove the card."
+echo
+myxz $FILE.lzop
+rm $FILE.lzop

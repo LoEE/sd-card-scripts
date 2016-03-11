@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -x
+
+sudo -v
+
+FILE=$1
+DISK=$2
+
+p() {
+  pv -cN ${1:+"$@"}
+}
+
+unpack() {
+  case $FILE in
+    *.xz)
+      xzdec | p out
+      ;;
+    *.lzop)
+      lzop -d | p out
+      ;;
+    *)
+      cat
+      ;;
+  esac
+}
+
+burn() {
+  sudo dd of=$1 bs=10485760
+}
+
+diskutil unmountDisk $DISK
+p in $FILE|unpack|burn $DISK
