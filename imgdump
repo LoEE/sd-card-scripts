@@ -7,17 +7,13 @@ sudo -v
 DISK=$1
 FILE=$2
 
-p() {
-  pv -cN ${1:+"$@"}
-}
-
 pack() {
   case $FILE in
     *.xz)
-      xz | p out
+      xz | pv -cN out
       ;;
     *.lzop)
-      lzop | p out
+      lzop | pv -cN out
       ;;
     *)
       cat
@@ -26,7 +22,7 @@ pack() {
 }
 
 dump() {
-  sudo p in ${1:+"$@"}
+  sudo pv -cN in ${1:+"$@"}
 }
 
 dump $DISK|pack > $FILE.lzop
